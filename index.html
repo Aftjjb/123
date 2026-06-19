@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食光日記 — 飲食記錄 App</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="logo">
+    <div class="logo-icon">🍜</div>
+    <span class="logo-text">食光日記</span>
+  </div>
+  <div class="main-tabs">
+    <button class="main-tab active" onclick="switchMain('record')">📝 記錄</button>
+    <button class="main-tab" onclick="switchMain('album')">📷 相簿</button>
+    <button class="main-tab" onclick="switchMain('stats')">📊 統計</button>
+  </div>
+</nav>
+
+<div class="app">
+
+  <!-- ══ RECORD ══ -->
+  <div class="page active" id="page-record">
+    <div class="card">
+      <div class="section-label">餐點照片</div>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" accept="image/*" id="fileInput">
+        <div id="uploadPrompt">
+          <div class="upload-icon">📷</div>
+          <div class="upload-text">點擊或拖曳上傳照片</div>
+          <div class="upload-hint">支援 JPG、PNG、HEIC</div>
+        </div>
+      </div>
+      <div class="preview-wrap" id="previewWrap">
+        <img id="previewImg" src="" alt="預覽">
+        <button class="preview-remove" id="removeBtn">✕</button>
+      </div>
+      <div style="margin-top:16px">
+        <div class="section-label">餐點資訊</div>
+        <div class="field"><label>餐點名稱 *</label><input type="text" id="mealName" placeholder="例如：牛肉麵、雞腿便當…" maxlength="30"></div>
+        <div class="row2">
+          <div class="field"><label>日期 *</label><input type="date" id="mealDate"></div>
+          <div class="field"><label>餐廳 / 店名</label><input type="text" id="storeName" placeholder="可選填"></div>
+        </div>
+        <div class="field"><label>餐型</label>
+          <div class="meal-tabs" id="mealTabs">
+            <button class="meal-tab active" data-val="早餐">🌅 早餐</button>
+            <button class="meal-tab" data-val="午餐">☀️ 午餐</button>
+            <button class="meal-tab" data-val="晚餐">🌙 晚餐</button>
+            <button class="meal-tab" data-val="點心">🧋 點心</button>
+          </div>
+        </div>
+        <div class="field"><label>備註</label><textarea id="mealNote" placeholder="心情、推薦指數…"></textarea></div>
+      </div>
+      <div>
+        <div class="section-label">花費記錄</div>
+        <div class="row2">
+          <div class="field"><label>金額（元）*</label><input type="number" id="mealAmount" placeholder="0" min="0"></div>
+          <div class="field"><label>付款方式</label>
+            <div class="pay-tabs" id="payTabs">
+              <button class="pay-tab active" data-val="現金">💵 現金</button>
+              <button class="pay-tab" data-val="信用卡">💳 卡</button>
+              <button class="pay-tab" data-val="電子支付">📱 電子</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="submit-btn" id="submitBtn">記錄這餐 ✓</button>
+    </div>
+    <div>
+      <div class="records-header">
+        <span class="records-title">今日記錄</span>
+        <span class="records-count" id="recordsCount">0 筆</span>
+      </div>
+      <div class="record-list" id="recordList">
+        <div class="empty-state"><div style="font-size:32px;margin-bottom:8px">🍽️</div>還沒有記錄，快去吃點東西！</div>
+      </div>
+      <div id="dailyTotal" style="display:none" class="daily-total">
+        <span style="font-size:13px;color:var(--brown-mid);font-weight:500">今日合計</span>
+        <span style="font-size:18px;font-weight:700;color:var(--orange)" id="totalAmount">$0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ALBUM ══ -->
+  <div class="page" id="page-album">
+    <div class="card" id="albumContent">
+      <div class="empty-state"><div style="font-size:32px;margin-bottom:8px">📷</div>還沒有餐點照片，去記錄一些吧！</div>
+    </div>
+  </div>
+
+  <!-- ══ STATS ══ -->
+  <div class="page" id="page-stats">
+    <div class="stats-tab-nav">
+      <button class="stats-tab-btn active" onclick="switchStats('week')">📅 本週</button>
+      <button class="stats-tab-btn" onclick="switchStats('rank')">🏆 排行榜</button>
+    </div>
+
+    <!-- 本週 -->
+    <div class="stats-page active" id="stats-week">
+      <div class="summary-grid">
+        <div class="sum-card highlight"><div class="sum-label">本週支出</div><div class="sum-val" id="sw-total">$0</div></div>
+        <div class="sum-card"><div class="sum-label">日均花費</div><div class="sum-val" id="sw-avg">$0</div><div class="sum-sub">每日</div></div>
+        <div class="sum-card"><div class="sum-label">記錄筆數</div><div class="sum-val" id="sw-count">0</div><div class="sum-sub">筆</div></div>
+      </div>
+      <div class="chart-wrap">
+        <div class="sec-title">📊 每日花費</div>
+        <div class="bar-chart" id="weekBarChart"></div>
+      </div>
+      <div class="chart-wrap">
+        <div class="sec-title">🍽️ 餐型分布</div>
+        <div class="donut-wrap">
+          <svg id="donutSvg" width="110" height="110" viewBox="0 0 110 110"></svg>
+          <div class="donut-legend" id="donutLegend"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 排行榜 -->
+    <div class="stats-page" id="stats-rank">
+      <div class="sec-title" style="margin-bottom:10px">💰 消費金額排行</div>
+      <div class="rank-list" id="rankList"></div>
+      <div class="divider"></div>
+      <div class="sec-title" style="margin-bottom:10px">🔁 出現次數排行</div>
+      <div class="rank-list" id="freqList"></div>
+      <div class="divider"></div>
+      <div class="sec-title" style="margin-bottom:10px">🏪 店家消費排行</div>
+      <div class="rank-list" id="storeRankList"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Delete modal -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <div class="modal-emoji">🗑️</div>
+    <div class="modal-title">確定要刪除嗎？</div>
+    <div class="modal-desc" id="modalDesc"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" id="modalCancel">取消</button>
+      <button class="modal-confirm" id="modalConfirm">刪除</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+
+<script src="script.js"></script>
+</body>
+</html>
